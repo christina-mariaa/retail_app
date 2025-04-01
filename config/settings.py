@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'people',
     'drf_yasg',
     'sales',
+    'purchases',
 ]
 
 MIDDLEWARE = [
