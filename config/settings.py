@@ -32,11 +32,9 @@ INSTALLED_APPS = [
     'products',
     'locations',
     'people',
-<<<<<<< HEAD
-    'sales',
-=======
     'drf_yasg',
->>>>>>> 71ed94b6606e3b67f6472b7d08a5ee9cdfb57af5
+    'sales',
+    'purchases',
 ]
 
 MIDDLEWARE = [
