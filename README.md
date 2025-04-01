@@ -20,19 +20,19 @@ docker-compose exec web python manage.py migrate
 Все участники работают в отдельных ветках feature/... — это важно, чтобы не мешать работе друг друга и упростить объединение кода.
 ## Как работать с ветками:
 ### 1. Перейти в ветку dev и обновить её
-git checkout dev
+git checkout dev  
 git pull origin dev
 ### 2. Создать свою ветку от dev
 git checkout -b feature/название-задачи
 ### 3. После завершения задачи
-git add .
-git commit -m "описание изменений"
+git add .  
+git commit -m "описание изменений"  
 git push origin feature/название-задачи
 ### 4. Зайти на GitHub → открыть Pull Request из своей ветки в dev
 ### 5. Второй человек делает ревью и подтверждает слияние (merge)
-После слияния изменений нужно подтянуть обновлённый dev, чтобы быть в курсе всех изменений:
-git checkout dev
-git pull origin dev
-Если ты продолжаешь работу в своей ветке — влей туда изменения из dev:
-git checkout feature/твоя-ветка
-git merge dev
+После слияния изменений нужно подтянуть обновлённый dev, чтобы быть в курсе всех изменений:  
+git checkout dev  
+git pull origin dev  
+Если ты продолжаешь работу в своей ветке — влей туда изменения из dev:  
+git checkout feature/твоя-ветка  
+git merge dev  
