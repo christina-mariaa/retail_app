@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 
 
 class ProductCategory(models.Model):
@@ -18,6 +17,7 @@ class Product(models.Model):
         """Возвращает текущую активную цену (последнюю по дате начала)"""
         latest_price = self.price_history.filter(end_date__isnull=True).order_by('-start_date').first()
         return latest_price.price if latest_price else None
+
 
 class PriceHistory(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='price_history')
