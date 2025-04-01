@@ -21,3 +21,9 @@ class ProductViewSet(viewsets.ModelViewSet):
             print(serializer.errors)  # Логируем ошибки в консоль
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return super().create(request, *args, **kwargs)
+
+
+class ProductCategoryViewSet(viewsets.ModelViewSet):
+    queryset = ProductCategory.objects.all()
+    serializer_class = ProductCategorySerializer
+    lookup_field = 'id'
