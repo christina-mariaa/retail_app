@@ -17,6 +17,7 @@ class Order(models.Model):
     store = models.ForeignKey(Location, on_delete=models.CASCADE) 
     client = models.ForeignKey(CounterAgent, on_delete=models.SET_NULL, null=True, blank=True, related_name='clients')
     delivery_address = models.TextField()
+    ordering_date  = models.DateTimeField(auto_now=True)
     delivery_date = models.DateField()
     comment = models.TextField(blank=True, null=True)
     state = models.CharField(max_length=20, choices=STATE_CHOICES, default='new')
