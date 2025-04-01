@@ -9,11 +9,11 @@ class ProductSerializer(serializers.ModelSerializer):
         write_only=True,
         required=True
     )
+    current_price = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = Product
-        fields = ['code', 'name', 'brand', 'image', 'category', 'price']
-        read_only_fields = ['current_price']
+        fields = ['code', 'name', 'brand', 'image', 'category', 'price', 'current_price']
 
     def create(self, validated_data):
         price = validated_data.pop('price')
@@ -37,3 +37,6 @@ class ProductSerializer(serializers.ModelSerializer):
                 start_date=timezone.now().date()
             )
         return super().update(instance, validated_data)
+    
+    def get_current_price(self, obj):
+        return obj.current_price
