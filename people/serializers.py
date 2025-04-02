@@ -24,5 +24,5 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
 class CounterAgentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Position
+        model = CounterAgent
         fields = ['code', 'name', 'contact_info', 'is_supplier']
