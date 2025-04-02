@@ -2,9 +2,19 @@ from rest_framework import serializers
 from .models import Product, ProductCategory, PriceHistory
 from django.utils import timezone
 
+class ProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCategory
+        fields = ['id', 'name']
+
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers.PrimaryKeyRelatedField(queryset=ProductCategory.objects.all(), allow_null=True, required=False)
+    category = ProductCategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=ProductCategory.objects.all(),
+        source="category",
+        write_only=True
+    )
     price = serializers.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -15,7 +25,7 @@ class ProductSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Product
-        fields = ['code', 'name', 'brand', 'image', 'category', 'price', 'current_price']
+        fields = ['code', 'name', 'brand', 'image', 'category', 'price', 'current_price', 'category_id']
 
     def create(self, validated_data):
         price = validated_data.pop('price')
@@ -42,9 +52,3 @@ class ProductSerializer(serializers.ModelSerializer):
     
     def get_current_price(self, obj):
         return obj.current_price
-
-
-class ProductCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductCategory
-        fields = ['id', 'name']
