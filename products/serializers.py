@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import *
+from .models import Product, ProductCategory, PriceHistory
+from django.utils import timezone
+
 
 class ProductSerializer(serializers.ModelSerializer):
     category = serializers.PrimaryKeyRelatedField(
@@ -46,3 +48,9 @@ class ProductSerializer(serializers.ModelSerializer):
     
     def get_current_price(self, obj):
         return obj.current_price
+
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCategory
+        fields = ['id', 'name']
