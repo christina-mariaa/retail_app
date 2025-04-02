@@ -1,6 +1,7 @@
 from django.db import models
 from locations.models import Location
 
+
 class CounterAgent(models.Model):
     code = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=255)
@@ -10,13 +11,15 @@ class CounterAgent(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+
 class Position(models.Model):
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
-    
+
+
 class Employee(models.Model):
     name = models.CharField(max_length=255)
     surname = models.CharField(max_length=255)
