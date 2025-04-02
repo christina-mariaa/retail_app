@@ -7,7 +7,6 @@ class CounterAgent(models.Model):
     name = models.CharField(max_length=255)
     contact_info = models.TextField()
     is_supplier = models.BooleanField(default=False)
-    personal_discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def __str__(self):
         return self.name

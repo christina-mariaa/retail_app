@@ -21,3 +21,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = ['id', 'name', 'surname', 'middle_name', 'position', 'location', 'position_data', 'location_data']
+
+class CounterAgentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Position
+        fields = ['code', 'name', 'contact_info', 'is_supplier']
