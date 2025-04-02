@@ -2,19 +2,58 @@ from rest_framework import serializers
 from django.db import transaction
 from decimal import Decimal
 from django.core.exceptions import ValidationError
+from locations.serializers import LocationSerializer
+from locations.models import Location
+from people.serializers import CounterAgentSerializer, EmployeeSerializer
+from people.models import CounterAgent, Employee
+from products.serializers import ProductSerializer
 from .models import Order, OrderProduct
 from locations.models import Stock
 from products.models import Product
 
 class OrderProductSerializer(serializers.ModelSerializer):
-    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+    product = ProductSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(),
+        source="product",
+        write_only=True
+    )
 
     class Meta:
         model = OrderProduct
-        fields = ['product', 'amount']
+        fields = ['product', 'product_id', 'amount']
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    store = LocationSerializer(read_only=True)  # Вложенный магазин
+    store_id = serializers.PrimaryKeyRelatedField(
+        queryset=Location.objects.all(),
+        source="store",
+        write_only=True
+    )
+
+    client = CounterAgentSerializer(read_only=True)  # Вложенный клиент
+    client_id = serializers.PrimaryKeyRelatedField(
+        queryset=CounterAgent.objects.all(),
+        source="client",
+        write_only=True
+    )
+
+    delivery_driver = EmployeeSerializer(read_only=True)  # Вложенный водитель
+    delivery_driver_id = serializers.PrimaryKeyRelatedField(
+        queryset=Employee.objects.all(),
+        source="delivery_driver",
+        write_only=True,
+        allow_null=True
+    )
+
+    order_picker = EmployeeSerializer(read_only=True)  # Вложенный сборщик
+    order_picker_id = serializers.PrimaryKeyRelatedField(
+        queryset=Employee.objects.all(),
+        source="order_picker",
+        write_only=True,
+        allow_null=True
+    )
     # Вложенный список товаров в заказе
     order_items = OrderProductSerializer(many=True)
 
@@ -23,7 +62,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'store', 'client', 'delivery_address', 'delivery_date', 
             'comment', 'state', 'total_price', 'delivery_driver', 'order_picker',
-            'order_items'
+            'order_items', 'order_picker_id', 'delivery_driver_id', 'client_id', 'store_id'
         ]
         read_only_fields = ['total_price', 'state']
 
@@ -34,15 +73,15 @@ class OrderSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             # Сначала вычисляем общую сумму, а затем создаем заказ с этим значением
             for item_data in order_items_data:
-                product = item_data['product']
+                product = item_data['product_id']
                 amount = item_data['amount']
 
                 # Проверяем наличие записи запаса для продукта в данном магазине
                 try:
-                    stock_record = Stock.objects.get(product=product, location=validated_data['store'])
+                    stock_record = Stock.objects.get(product=product, location=validated_data['store_id'])
                 except Stock.DoesNotExist:
                     raise ValidationError(
-                        f"Запись остатка для товара {product.name} не найдена в магазине {validated_data['store'].code}"
+                        f"Запись остатка для товара {product.name} не найдена в магазине {validated_data['store_id'].code}"
                     )
 
                 # Проверка наличия нужного количества товара
@@ -72,7 +111,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
             # Создаем записи в OrderProduct
             for item_data in order_items_data:
-                product = item_data['product']
+                product = item_data['product_id']
                 amount = item_data['amount']
 
                 # Создание записи OrderProduct
