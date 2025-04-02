@@ -28,6 +28,7 @@ class Order(models.Model):
     def __str__(self):
         return f"Заказ {self.id} - {self.state}"
 
+
 class OrderProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
@@ -36,3 +37,24 @@ class OrderProduct(models.Model):
 
     def __str__(self):
         return f"{self.product.name} x {self.amount} (Заказ {self.order.id})"
+    
+
+class Sale(models.Model):
+    store = models.ForeignKey(Location, on_delete=models.CASCADE) 
+    client = models.ForeignKey(CounterAgent, on_delete=models.SET_NULL, null=True, blank=True, related_name='clients_sales')
+    date_of_sale  = models.DateTimeField(auto_now=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    seller = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True, related_name='sellers')
+
+    def __str__(self):
+        return f"Продажа {self.id} - {self.date_of_sale}, {self.total_price} руб."
+
+class SaleProduct(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name='sale_items')
+    amount = models.PositiveIntegerField() 
+    price_for_an_item = models.ForeignKey(PriceHistory, on_delete=models.SET_NULL, null=True, blank=True, related_name='item_sale_price')
+
+    def __str__(self):
+        return f"{self.product.name} x {self.amount} (Заказ {self.order.id})"
+    
