@@ -44,7 +44,8 @@ class OrderSerializer(serializers.ModelSerializer):
         queryset=Employee.objects.all(),
         source="delivery_driver",
         write_only=True,
-        allow_null=True
+        allow_null=True,
+        required=False
     )
 
     order_picker = EmployeeSerializer(read_only=True)  # Вложенный сборщик
@@ -52,7 +53,8 @@ class OrderSerializer(serializers.ModelSerializer):
         queryset=Employee.objects.all(),
         source="order_picker",
         write_only=True,
-        allow_null=True
+        allow_null=True,
+        required=False
     )
     # Вложенный список товаров в заказе
     order_items = OrderProductSerializer(many=True)
@@ -64,7 +66,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'comment', 'state', 'total_price', 'delivery_driver', 'order_picker',
             'order_items', 'order_picker_id', 'delivery_driver_id', 'client_id', 'store_id'
         ]
-        read_only_fields = ['total_price', 'state']
+        read_only_fields = ['total_price']
 
     def create(self, validated_data):
         order_items_data = validated_data.pop('order_items')  # Извлекаем вложенные товары
@@ -73,15 +75,15 @@ class OrderSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             # Сначала вычисляем общую сумму, а затем создаем заказ с этим значением
             for item_data in order_items_data:
-                product = item_data['product_id']
+                product = item_data['product']
                 amount = item_data['amount']
 
                 # Проверяем наличие записи запаса для продукта в данном магазине
                 try:
-                    stock_record = Stock.objects.get(product=product, location=validated_data['store_id'])
+                    stock_record = Stock.objects.get(product=product, location=validated_data['store'])
                 except Stock.DoesNotExist:
                     raise ValidationError(
-                        f"Запись остатка для товара {product.name} не найдена в магазине {validated_data['store_id'].code}"
+                        f"Запись остатка для товара {product.name} не найдена в магазине {validated_data['store'].code}"
                     )
 
                 # Проверка наличия нужного количества товара
@@ -111,7 +113,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
             # Создаем записи в OrderProduct
             for item_data in order_items_data:
-                product = item_data['product_id']
+                product = item_data['product']
                 amount = item_data['amount']
 
                 # Создание записи OrderProduct
