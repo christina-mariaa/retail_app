@@ -13,7 +13,7 @@ class TransferItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TransferItem
-        fields = ["product", "product_id", "quantity"]  # Включаем все поля
+        fields = ["product", "product_id", "quantity", "initial_quantity", "final_quantity"]  # Включаем все поля
 
 class TransferSerializer(serializers.ModelSerializer):
     from_location = LocationSerializer(read_only=True)  # Вложенный сериализатор для from_location
