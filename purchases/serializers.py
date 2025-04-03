@@ -10,11 +10,12 @@ from locations.models import Location
 
 class PurchaseProductSerializer(serializers.ModelSerializer):
     product_code = serializers.CharField(write_only=True)  # Код продукта
+    product_name = serializers.CharField(write_only=True)
     increase_percent = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, write_only=True)
 
     class Meta:
         model = PurchaseProduct
-        fields = ['product', 'amount', 'price_for_an_item', 'product_code', 'increase_percent']
+        fields = ['product', 'amount', 'price_for_an_item', 'product_code', 'increase_percent', 'product_name']
         read_only_fields = ['product']
 
 class PurchaseSerializer(serializers.ModelSerializer):
@@ -36,12 +37,13 @@ class PurchaseSerializer(serializers.ModelSerializer):
 
             for item_data in purchase_products_data:
                 product_code = item_data.pop('product_code')
+                product_name = item_data.pop('product_name')
                 increase_percent = item_data.pop('increase_percent', None)
                 price_for_an_item = item_data['price_for_an_item']
                 amount = item_data['amount']
 
                 # Ищем товар, если нет — создаем
-                product, created = Product.objects.get_or_create(code=product_code, defaults={'name': product_code})
+                product, created = Product.objects.get_or_create(code=product_code, defaults={'name': product_name})
 
                 # Если товар существовал, обновляем его цену
                 # Если товар существовал, обновляем его цену
