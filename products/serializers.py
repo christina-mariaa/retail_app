@@ -39,10 +39,10 @@ class ProductSerializer(serializers.ModelSerializer):
         return product
     
     def update(self, instance, validated_data):
-        new_price = validated_data.pop('price')
+        new_price = validated_data.pop('price', None)
         
         # Создаём новую запись в истории только если цена изменилась
-        if new_price != instance.current_price:
+        if new_price is not None and new_price != instance.current_price:
             PriceHistory.objects.create(
                 product=instance,
                 price=new_price,

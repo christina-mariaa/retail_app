@@ -18,10 +18,40 @@ class OrderProductSerializer(serializers.ModelSerializer):
         source="product",
         write_only=True
     )
+    changed_by_id = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:
         model = OrderProduct
-        fields = ['product', 'product_id', 'amount']
+        fields = ['product', 'product_id', 'amount', 'id', 'changed_by_id'] 
+
+    def update(self, instance, validated_data):
+        old_amount = instance.amount
+        changed_by_id = validated_data.pop('changed_by_id', None)
+        instance = super().update(instance, validated_data)
+        new_amount = instance.amount
+
+        if old_amount != new_amount:
+            request = self.context.get('request')
+            comment = request.data.get('comment', '')
+
+            changed_by = None
+            if changed_by_id:
+                try:
+                    changed_by = Employee.objects.get(id=changed_by_id)
+                except Employee.DoesNotExist:
+                    print(f"Employee with id {changed_by_id} does not exist")
+                    pass
+
+            OrderChangeHistory.objects.create(
+                order=instance.order,
+                order_product=instance,
+                previous_amount=old_amount,
+                new_amount=new_amount,
+                changed_by=changed_by,
+                comment=comment
+            )
+        
+        return instance
 
 
 class OrderSerializer(serializers.ModelSerializer):

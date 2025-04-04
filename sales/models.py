@@ -4,9 +4,6 @@ from people.models import CounterAgent, Employee
 from products.models import Product, PriceHistory
 
 
-""" Не уверена какое действие делать при удалении сотрудников и товаров - 
- пока поставила setNull, но это значит - что поля будут необязательные.
-  Можно поставить каскад везде """
 class Order(models.Model):
     STATE_CHOICES = [
         ('new', 'Новый'),
@@ -58,3 +55,14 @@ class SaleProduct(models.Model):
     def __str__(self):
         return f"{self.product.name} x {self.amount} (Заказ {self.order.id})"
     
+class OrderChangeHistory(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='change_logs')
+    order_product = models.ForeignKey(OrderProduct, on_delete=models.CASCADE, related_name='change_logs')
+    previous_amount = models.PositiveIntegerField()
+    new_amount = models.PositiveIntegerField()
+    changed_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True, related_name='order_changes')
+    change_time = models.DateTimeField(auto_now_add=True)
+    comment = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Изменение для Заказа {self.order.id}: {self.order_product.product.name} {self.previous_amount} -> {self.new_amount}"
