@@ -6,6 +6,7 @@ class Location(models.Model):
     address = models.CharField(max_length=100, blank=True, null=True)
     is_store = models.BooleanField()
     is_main = models.BooleanField(default=False)
+    priority = models.IntegerField(default=1, null=True, blank=True)
 
 
 class Stock(models.Model):

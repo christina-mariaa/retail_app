@@ -7,4 +7,5 @@ router.register(r'transfers', TransferViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('distribute/', distribute_stock, name='distribute'),
 ]
