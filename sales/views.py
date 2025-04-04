@@ -5,6 +5,9 @@ from django.core.exceptions import ValidationError
 from .models import Order
 from .serializers import *
 
+class OrderProductViewSet(viewsets.ModelViewSet):
+    queryset = OrderProduct.objects.all()
+    serializer_class = OrderProductSerializer
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
