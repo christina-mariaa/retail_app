@@ -9,4 +9,5 @@ router.register(r'order-products', OrderProductViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('sales-by-period/', sales_by_period, name='sales-by-period'),
 ]
