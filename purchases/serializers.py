@@ -45,33 +45,33 @@ class PurchaseSerializer(serializers.ModelSerializer):
                 # Ищем товар, если нет — создаем
                 product, created = Product.objects.get_or_create(code=product_code, defaults={'name': product_name})
 
-                # Если товар существовал, обновляем его цену
-                # Если товар существовал, обновляем его цену
-                if not created:
-                    # Закрываем старую цену в истории (если она еще открыта)
+                # Считаем новую цену с учетом наценки
+                new_price = price_for_an_item
+                if increase_percent:
+                    new_price += new_price * (Decimal(increase_percent) / Decimal('100.00'))
+
+                if created:
+                    # Если товар только что создан — создаем цену сразу
+                    PriceHistory.objects.create(
+                        product=product,
+                        price=new_price,
+                        start_date=timezone.now().date()
+                    )
+                else:
+                    # Если товар существовал — проверим, нужно ли обновить цену
                     last_price = product.price_history.filter(end_date__isnull=True).first()
                     if last_price:
-                        # Новая цена с учетом наценки
-                        new_price = price_for_an_item
-                        if increase_percent:
-                            new_price += new_price * (increase_percent / Decimal('100.00'))
-
-                        if last_price.price != new_price:  # Проверяем, изменилась ли цена
+                        if last_price.price != new_price:
                             last_price.end_date = timezone.now().date()
                             last_price.save()
 
-                            # Записываем новую цену в историю
                             PriceHistory.objects.create(
                                 product=product,
                                 price=new_price,
                                 start_date=timezone.now().date()
                             )
                     else:
-                        # Если не было активной цены, создаем первую запись
-                        new_price = price_for_an_item
-                        if increase_percent:
-                            new_price += new_price * (increase_percent / Decimal('100.00'))
-
+                        # Не было активной цены — создаем
                         PriceHistory.objects.create(
                             product=product,
                             price=new_price,
